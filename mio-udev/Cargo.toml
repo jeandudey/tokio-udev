@@ -1,0 +1,9 @@
+[package]
+name = "mio-udev"
+version = "0.1.0"
+authors = ["Jean Pierre Dudey <jeandudey@hotmail.com>"]
+
+[dependencies]
+udev = { path = "../udev", version = "0.1.0" }
+mio = "0.6"
+libc = "0.2"

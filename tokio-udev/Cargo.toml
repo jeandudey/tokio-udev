@@ -1,0 +1,17 @@
+[package]
+name = "tokio-udev"
+version = "0.1.0"
+authors = ["Jean Pierre Dudey <jeandudey@hotmail.com>"]
+
+[dependencies]
+libc = "0.2"
+
+mio-udev = { path = "../mio-udev", version = "0.1.0" }
+mio = "0.6"
+udev = { path = "../udev", version = "0.1.0" }
+
+futures = "0.1"
+tokio-reactor = "0.1"
+
+[dev-dependencies]
+tokio = "0.1"
