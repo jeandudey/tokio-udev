@@ -2,8 +2,10 @@
 name = "mio-udev"
 version = "0.1.0"
 authors = ["Jean Pierre Dudey <jeandudey@hotmail.com>"]
+license = "Apache-2.0/MIT"
+description = "MIO support for udev device events."
 
 [dependencies]
-udev = { path = "../udev", version = "0.1.0" }
+udev = "0.2"
 mio = "0.6"
 libc = "0.2"

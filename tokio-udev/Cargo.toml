@@ -2,13 +2,14 @@
 name = "tokio-udev"
 version = "0.1.0"
 authors = ["Jean Pierre Dudey <jeandudey@hotmail.com>"]
+license = "Apache-2.0/MIT"
+description = "MIO support for udev device events."
 
 [dependencies]
 libc = "0.2"
 
-mio-udev = { path = "../mio-udev", version = "0.1.0" }
 mio = "0.6"
-udev = { path = "../udev", version = "0.1.0" }
+mio-udev = { path = "../mio-udev", version = "0.1" }
 
 futures = "0.1"
 tokio-reactor = "0.1"

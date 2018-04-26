@@ -1,9 +1,0 @@
-[package]
-name = "udev"
-version = "0.1.0"
-authors = ["Jean Pierre Dudey <jeandudey@hotmail.com>"]
-
-[dependencies]
-udev-sys = { path = "../udev-sys", version = "0.1" }
-libc = "0.2"
-log = "0.4"

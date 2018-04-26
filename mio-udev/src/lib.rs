@@ -1,31 +1,109 @@
 #![cfg(target_os = "linux")]
 
+//! # mio-udev
+//!
+//! This library implements abstractions around `udev` to make it usable
+//! with `mio` event loop.
+//!
+//! # Usage
+//!
+//! First put the dependency on your crate's `Cargo.toml`. For example:
+//!
+//! ```toml
+//! [dependencies]
+//! mio-udev = "0.1"
+//! ```
+//!
+//! Then import it in your crate root as:
+//!
+//! ```rust
+//! extern crate mio_udev;
+//! ```
+
 extern crate udev;
 extern crate mio;
 extern crate libc;
+
+pub use udev::{Attribute, Attributes, Context, Device, Event, Property,
+               Properties, Error as UdevError};
 
 mod util;
 
 use std::io;
 use std::os::unix::io::{AsRawFd, RawFd};
+use std::ffi::OsStr;
 
 use mio::{Ready, Poll, PollOpt, Token};
 use mio::event::Evented;
 use mio::unix::EventedFd;
 
-#[derive(Debug)]
-pub struct MonitorIo {
-    monitor: udev::Monitor,
+/// Monitors for device events.
+///
+/// A monitor communicates with the kernel over a socket. Filtering events is
+/// performed efficiently in the kernel, and only events that match the filters
+/// are received by the socket. Filters must be setup before listening for
+/// events.
+pub struct MonitorBuilder {
+    builder: udev::MonitorBuilder,
 }
 
-impl MonitorIo {
-    /// Creates a new monitor io object from an existing udev monitor.
+impl MonitorBuilder {
+    /// Creates a new `MonitorSocket`.
+    #[inline(always)]
+    pub fn new(context: &Context) -> io::Result<Self> {
+        Ok(MonitorBuilder { builder: udev::MonitorBuilder::new(context)? })
+    }
+
+    /// Adds a filter that matches events for devices with the given subsystem.
+    #[inline(always)]
+    pub fn match_subsystem<T>(&mut self, subsystem: T) -> io::Result<()>
+        where T: AsRef<OsStr>,
+    {
+        Ok(self.builder.match_subsystem::<T>(subsystem)?)
+    }
+
+    /// Adds a filter that matches events for devices with the given subsystem
+    /// and device type.
+    #[inline(always)]
+    pub fn match_subsystem_devtype<T, U>(&mut self,
+                                         subsystem: T,
+                                         devtype: U) -> io::Result<()>
+        where T: AsRef<OsStr>,
+              U: AsRef<OsStr>,
+    {
+        Ok(self.builder.match_subsystem_devtype::<T, U>(subsystem, devtype)?)
+    }
+
+    /// Adds a filter that matches events for devices with the given tag.
+    #[inline(always)]
+    pub fn match_tag<T>(&mut self, tag: T) -> io::Result<()>
+        where T: AsRef<OsStr>,
+    {
+        Ok(self.builder.match_tag::<T>(tag)?)
+    }
+
+    /// Removes all filters currently set on the monitor.
+    #[inline(always)]
+    pub fn clear_filters(&mut self) -> io::Result<()> {
+        Ok(self.builder.clear_filters()?)
+    }
+
+    /// Listens for events matching the current filters.
     ///
-    /// # Notes
-    ///
-    /// It marks the file descriptor as `FD_CLOEXEC` and sets the `O_NONBLOCK`
-    /// flag.
-    pub fn from_monitor(monitor: udev::Monitor) -> io::Result<MonitorIo> {
+    /// This method consumes the `MonitorBuilder`.
+    pub fn listen(self) -> io::Result<MonitorSocket> {
+        Ok(MonitorSocket::new(self.builder.listen()?)?)
+    }
+}
+
+/// A wrapper around an `udev::MonitorSocket` that adds the required `mio`
+/// functionality.
+pub struct MonitorSocket {
+    monitor: udev::MonitorSocket,
+}
+
+impl MonitorSocket {
+    fn new(monitor: udev::MonitorSocket) -> io::Result<MonitorSocket> {
         use libc::{fcntl, F_GETFD, FD_CLOEXEC, F_SETFD, F_GETFL, F_SETFL, O_NONBLOCK};
         use util::cvt;
 
@@ -46,11 +124,7 @@ impl MonitorIo {
             unsafe { cvt(fcntl(fd, F_SETFL, r | O_NONBLOCK))? };
         }
 
-        Ok(MonitorIo { monitor })
-    }
-
-    pub fn receive_device(&self) -> io::Result<udev::Device> {
-        self.monitor.receive_device()
+        Ok(MonitorSocket { monitor })
     }
 
     #[inline(always)]
@@ -59,7 +133,7 @@ impl MonitorIo {
     }
 }
 
-impl Evented for MonitorIo {
+impl Evented for MonitorSocket {
     fn register(&self, poll: &Poll, token: Token, interest: Ready, opts: PollOpt)
         -> io::Result<()>
     {
@@ -74,5 +148,13 @@ impl Evented for MonitorIo {
 
     fn deregister(&self, poll: &Poll) -> io::Result<()> {
         EventedFd(&self.fd()).deregister(poll)
+    }
+}
+
+impl Iterator for MonitorSocket {
+    type Item = Event;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.monitor.next()
     }
 }
