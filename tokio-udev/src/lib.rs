@@ -106,14 +106,19 @@ impl MonitorSocket {
     fn new(monitor: mio_udev::MonitorSocket) -> MonitorSocket {
         MonitorSocket { inner: Mutex::new(Inner::new(monitor)), }
     }
-
-    fn poll_receive(&mut self) -> Poll<Option<mio_udev::Event>, io::Error> {
-        self.inner.lock().unwrap().poll_receive()
-    }
 }
 
 unsafe impl Send for MonitorSocket {}
 unsafe impl Sync for MonitorSocket {}
+
+impl Stream for MonitorSocket {
+    type Item = mio_udev::Event;
+    type Error = io::Error;
+
+    fn poll(&mut self) -> Poll<Option<Self::Item>, Self::Error> {
+        self.inner.lock().unwrap().poll_receive()
+    }
+}
 
 struct Inner {
     io: PollEvented<mio_udev::MonitorSocket>,
@@ -137,14 +142,5 @@ impl Inner {
             },
         }
 
-    }
-}
-
-impl Stream for MonitorSocket {
-    type Item = mio_udev::Event;
-    type Error = io::Error;
-
-    fn poll(&mut self) -> Poll<Option<Self::Item>, Self::Error> {
-        self.poll_receive()
     }
 }
