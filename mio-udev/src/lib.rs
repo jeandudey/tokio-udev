@@ -24,8 +24,8 @@ extern crate udev;
 extern crate mio;
 extern crate libc;
 
-pub use udev::{Attribute, Attributes, Context, Device, Event, Property,
-               Properties, Error as UdevError};
+pub use udev::{Attribute, Attributes, Context, Device, Event, EventType,
+               Property, Properties, Error as UdevError};
 
 mod util;
 

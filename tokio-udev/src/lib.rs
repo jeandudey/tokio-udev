@@ -28,8 +28,8 @@ extern crate mio_udev;
 extern crate futures;
 extern crate tokio_reactor;
 
-pub use mio_udev::{Attribute, Attributes, Context, Device, Event, Property,
-                   Properties, UdevError};
+pub use mio_udev::{Attribute, Attributes, Context, Device, Event, EventType,
+                   Property, Properties, UdevError};
 
 use std::io;
 use std::ffi::OsStr;
