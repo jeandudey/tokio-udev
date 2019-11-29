@@ -25,10 +25,12 @@ pub use mio_udev::{Attribute, Attributes, Context, Device, Enumerator, Event,
 
 use std::io;
 use std::ffi::OsStr;
+use std::pin::Pin;
 use std::sync::Mutex;
+use std::task::Poll;
 
-use tokio_reactor::PollEvented;
-use futures::{Async, Poll, stream::Stream};
+use tokio::io::PollEvented;
+use futures_core::stream::Stream;
 
 /// Monitors for device events.
 ///
@@ -85,7 +87,7 @@ impl MonitorBuilder {
     ///
     /// This method consumes the `MonitorBuilder`.
     pub fn listen(self) -> io::Result<MonitorSocket> {
-        Ok(MonitorSocket::new(self.builder.listen()?))
+        MonitorSocket::new(self.builder.listen()?)
     }
 }
 
@@ -95,8 +97,8 @@ pub struct MonitorSocket {
 }
 
 impl MonitorSocket {
-    fn new(monitor: mio_udev::MonitorSocket) -> MonitorSocket {
-        MonitorSocket { inner: Mutex::new(Inner::new(monitor)), }
+    fn new(monitor: mio_udev::MonitorSocket) -> io::Result<MonitorSocket> {
+        Ok(MonitorSocket { inner: Mutex::new(Inner::new(monitor)?), })
     }
 }
 
@@ -105,10 +107,9 @@ unsafe impl Sync for MonitorSocket {}
 
 impl Stream for MonitorSocket {
     type Item = mio_udev::Event;
-    type Error = io::Error;
 
-    fn poll(&mut self) -> Poll<Option<Self::Item>, Self::Error> {
-        self.inner.lock().unwrap().poll_receive()
+    fn poll_next(self: Pin<&mut Self>, cx: &mut std::task::Context) -> Poll<Option<Self::Item>> {
+        self.inner.lock().unwrap().poll_receive(cx)
     }
 }
 
@@ -117,22 +118,21 @@ struct Inner {
 }
 
 impl Inner {
-    fn new(monitor: mio_udev::MonitorSocket) -> Inner {
-        Inner { io: PollEvented::new(monitor), }
+    fn new(monitor: mio_udev::MonitorSocket) -> io::Result<Inner> {
+        Ok(Inner { io: PollEvented::new(monitor)?, })
     }
 
-    fn poll_receive(&mut self) -> Poll<Option<mio_udev::Event>, io::Error> {
-        if let Async::NotReady = self.io.poll_read_ready(mio::Ready::readable())? {
-            return Ok(Async::NotReady);
+    fn poll_receive(&mut self, cx: &mut std::task::Context) -> Poll<Option<mio_udev::Event>> {
+        if let Poll::Pending = self.io.poll_read_ready(cx, mio::Ready::readable()) {
+            return Poll::Pending;
         }
 
         match self.io.get_mut().next() {
-            Some(device) => Ok(Async::Ready(Some(device))),
+            Some(event) => Poll::Ready(Some(event)),
             None => {
-                self.io.clear_read_ready(mio::Ready::readable())?;
-                Ok(Async::NotReady)
+                self.io.clear_read_ready(cx, mio::Ready::readable()).unwrap();
+                Poll::Pending
             },
         }
-
     }
 }
