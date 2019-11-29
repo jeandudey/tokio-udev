@@ -7,6 +7,7 @@ description = "Tokio support for udev device events."
 repository = "https://github.com/jeandudey/tokio-udev"
 homepage = "https://github.com/jeandudey/tokio-udev"
 documentation = "https://docs.rs/tokio-udev"
+edition = "2018"
 
 [dependencies]
 libc = "0.2"
@@ -14,8 +15,9 @@ libc = "0.2"
 mio = "0.6"
 mio-udev = { path = "../mio-udev", version = "0.1.1" }
 
-futures = "0.1"
-tokio-reactor = "0.1"
+futures-core = "0.3"
+tokio = { version = "0.2", features = ["io-driver"] }
 
 [dev-dependencies]
-tokio = "0.1"
+futures-util = "0.3"
+tokio = { version = "0.2", features = ["macros"] }

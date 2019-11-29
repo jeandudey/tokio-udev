@@ -17,15 +17,11 @@
 //! Then import it in your crate root as:
 //!
 //! ```rust
-//! extern crate mio_udev;
+//! use mio_udev;
 //! ```
 
-extern crate udev;
-extern crate mio;
-extern crate libc;
-
-pub use udev::{Attribute, Attributes, Context, Device, Event, EventType,
-               Property, Properties, Error as UdevError};
+pub use udev::{Attribute, Attributes, Context, Device, Enumerator, Event,
+               EventType, Property, Properties, Error as UdevError};
 
 mod util;
 
@@ -105,7 +101,7 @@ pub struct MonitorSocket {
 impl MonitorSocket {
     fn new(monitor: udev::MonitorSocket) -> io::Result<MonitorSocket> {
         use libc::{fcntl, F_GETFD, FD_CLOEXEC, F_SETFD, F_GETFL, F_SETFL, O_NONBLOCK};
-        use util::cvt;
+        use crate::util::cvt;
 
         let fd = monitor.as_raw_fd();
 
