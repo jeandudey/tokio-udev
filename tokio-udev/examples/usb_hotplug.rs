@@ -1,9 +1,5 @@
-extern crate tokio_udev;
-extern crate tokio;
-extern crate futures;
-
 use futures::{Future, stream::Stream};
-
+use tokio;
 use tokio_udev::{Context, MonitorBuilder};
 
 fn main() {

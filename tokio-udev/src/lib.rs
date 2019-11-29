@@ -17,16 +17,8 @@
 //! Then import it in your crate root as:
 //!
 //! ```rust
-//! extern crate tokio_udev;
+//! use tokio_udev;
 //! ```
-
-extern crate libc;
-
-extern crate mio;
-extern crate mio_udev;
-
-extern crate futures;
-extern crate tokio_reactor;
 
 pub use mio_udev::{Attribute, Attributes, Context, Device, Enumerator, Event,
                    EventType, Property, Properties, UdevError};
