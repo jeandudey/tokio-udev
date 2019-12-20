@@ -13,7 +13,7 @@ edition = "2018"
 libc = "0.2"
 
 mio = "0.6"
-mio-udev = { path = "../mio-udev", version = "0.1.1" }
+mio-udev = { path = "../mio-udev", version = "0.2.0" }
 
 futures-core = "0.3"
 tokio = { version = "0.2", features = ["io-driver"] }
