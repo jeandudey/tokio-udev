@@ -1,6 +1,6 @@
 [package]
 name = "tokio-udev"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["Jean Pierre Dudey <jeandudey@hotmail.com>"]
 license = "Apache-2.0/MIT"
 description = "Tokio support for udev device events."
