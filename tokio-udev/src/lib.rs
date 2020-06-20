@@ -20,17 +20,19 @@
 //! use tokio_udev;
 //! ```
 
-pub use mio_udev::{Attribute, Attributes, Context, Device, Enumerator, Event,
-                   EventType, Property, Properties, UdevError};
+pub use mio_udev::{
+    Attribute, Attributes, Context, Device, Enumerator, Event, EventType,
+    Properties, Property, UdevError,
+};
 
-use std::io;
 use std::ffi::OsStr;
+use std::io;
 use std::pin::Pin;
 use std::sync::Mutex;
 use std::task::Poll;
 
-use tokio::io::PollEvented;
 use futures_core::stream::Stream;
+use tokio::io::PollEvented;
 
 /// Monitors for device events.
 ///
@@ -46,13 +48,16 @@ impl MonitorBuilder {
     /// Creates a new `MonitorSocket`.
     #[inline(always)]
     pub fn new(context: &mio_udev::Context) -> io::Result<Self> {
-        Ok(MonitorBuilder { builder: mio_udev::MonitorBuilder::new(context)? })
+        Ok(MonitorBuilder {
+            builder: mio_udev::MonitorBuilder::new(context)?,
+        })
     }
 
     /// Adds a filter that matches events for devices with the given subsystem.
     #[inline(always)]
     pub fn match_subsystem<T>(&mut self, subsystem: T) -> io::Result<()>
-        where T: AsRef<OsStr>,
+    where
+        T: AsRef<OsStr>,
     {
         Ok(self.builder.match_subsystem::<T>(subsystem)?)
     }
@@ -60,19 +65,25 @@ impl MonitorBuilder {
     /// Adds a filter that matches events for devices with the given subsystem
     /// and device type.
     #[inline(always)]
-    pub fn match_subsystem_devtype<T, U>(&mut self,
-                                         subsystem: T,
-                                         devtype: U) -> io::Result<()>
-        where T: AsRef<OsStr>,
-              U: AsRef<OsStr>,
+    pub fn match_subsystem_devtype<T, U>(
+        &mut self,
+        subsystem: T,
+        devtype: U,
+    ) -> io::Result<()>
+    where
+        T: AsRef<OsStr>,
+        U: AsRef<OsStr>,
     {
-        Ok(self.builder.match_subsystem_devtype::<T, U>(subsystem, devtype)?)
+        Ok(self
+            .builder
+            .match_subsystem_devtype::<T, U>(subsystem, devtype)?)
     }
 
     /// Adds a filter that matches events for devices with the given tag.
     #[inline(always)]
     pub fn match_tag<T>(&mut self, tag: T) -> io::Result<()>
-        where T: AsRef<OsStr>,
+    where
+        T: AsRef<OsStr>,
     {
         Ok(self.builder.match_tag::<T>(tag)?)
     }
@@ -98,7 +109,9 @@ pub struct MonitorSocket {
 
 impl MonitorSocket {
     fn new(monitor: mio_udev::MonitorSocket) -> io::Result<MonitorSocket> {
-        Ok(MonitorSocket { inner: Mutex::new(Inner::new(monitor)?), })
+        Ok(MonitorSocket {
+            inner: Mutex::new(Inner::new(monitor)?),
+        })
     }
 }
 
@@ -108,7 +121,10 @@ unsafe impl Sync for MonitorSocket {}
 impl Stream for MonitorSocket {
     type Item = mio_udev::Event;
 
-    fn poll_next(self: Pin<&mut Self>, cx: &mut std::task::Context) -> Poll<Option<Self::Item>> {
+    fn poll_next(
+        self: Pin<&mut Self>,
+        cx: &mut std::task::Context,
+    ) -> Poll<Option<Self::Item>> {
         self.inner.lock().unwrap().poll_receive(cx)
     }
 }
@@ -119,20 +135,29 @@ struct Inner {
 
 impl Inner {
     fn new(monitor: mio_udev::MonitorSocket) -> io::Result<Inner> {
-        Ok(Inner { io: PollEvented::new(monitor)?, })
+        Ok(Inner {
+            io: PollEvented::new(monitor)?,
+        })
     }
 
-    fn poll_receive(&mut self, cx: &mut std::task::Context) -> Poll<Option<mio_udev::Event>> {
-        if let Poll::Pending = self.io.poll_read_ready(cx, mio::Ready::readable()) {
+    fn poll_receive(
+        &mut self,
+        cx: &mut std::task::Context,
+    ) -> Poll<Option<mio_udev::Event>> {
+        if let Poll::Pending =
+            self.io.poll_read_ready(cx, mio::Ready::readable())
+        {
             return Poll::Pending;
         }
 
         match self.io.get_mut().next() {
             Some(event) => Poll::Ready(Some(event)),
             None => {
-                self.io.clear_read_ready(cx, mio::Ready::readable()).unwrap();
+                self.io
+                    .clear_read_ready(cx, mio::Ready::readable())
+                    .unwrap();
                 Poll::Pending
-            },
+            }
         }
     }
 }

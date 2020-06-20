@@ -20,18 +20,20 @@
 //! use mio_udev;
 //! ```
 
-pub use udev::{Attribute, Attributes, Context, Device, Enumerator, Event,
-               EventType, Property, Properties, Error as UdevError};
+pub use udev::{
+    Attribute, Attributes, Context, Device, Enumerator, Error as UdevError,
+    Event, EventType, Properties, Property,
+};
 
 mod util;
 
+use std::ffi::OsStr;
 use std::io;
 use std::os::unix::io::{AsRawFd, RawFd};
-use std::ffi::OsStr;
 
-use mio::{Ready, Poll, PollOpt, Token};
 use mio::event::Evented;
 use mio::unix::EventedFd;
+use mio::{Poll, PollOpt, Ready, Token};
 
 /// Monitors for device events.
 ///
@@ -47,13 +49,16 @@ impl MonitorBuilder {
     /// Creates a new `MonitorSocket`.
     #[inline(always)]
     pub fn new(context: &Context) -> io::Result<Self> {
-        Ok(MonitorBuilder { builder: udev::MonitorBuilder::new(context)? })
+        Ok(MonitorBuilder {
+            builder: udev::MonitorBuilder::new(context)?,
+        })
     }
 
     /// Adds a filter that matches events for devices with the given subsystem.
     #[inline(always)]
     pub fn match_subsystem<T>(&mut self, subsystem: T) -> io::Result<()>
-        where T: AsRef<OsStr>,
+    where
+        T: AsRef<OsStr>,
     {
         Ok(self.builder.match_subsystem::<T>(subsystem)?)
     }
@@ -61,19 +66,25 @@ impl MonitorBuilder {
     /// Adds a filter that matches events for devices with the given subsystem
     /// and device type.
     #[inline(always)]
-    pub fn match_subsystem_devtype<T, U>(&mut self,
-                                         subsystem: T,
-                                         devtype: U) -> io::Result<()>
-        where T: AsRef<OsStr>,
-              U: AsRef<OsStr>,
+    pub fn match_subsystem_devtype<T, U>(
+        &mut self,
+        subsystem: T,
+        devtype: U,
+    ) -> io::Result<()>
+    where
+        T: AsRef<OsStr>,
+        U: AsRef<OsStr>,
     {
-        Ok(self.builder.match_subsystem_devtype::<T, U>(subsystem, devtype)?)
+        Ok(self
+            .builder
+            .match_subsystem_devtype::<T, U>(subsystem, devtype)?)
     }
 
     /// Adds a filter that matches events for devices with the given tag.
     #[inline(always)]
     pub fn match_tag<T>(&mut self, tag: T) -> io::Result<()>
-        where T: AsRef<OsStr>,
+    where
+        T: AsRef<OsStr>,
     {
         Ok(self.builder.match_tag::<T>(tag)?)
     }
@@ -100,15 +111,17 @@ pub struct MonitorSocket {
 
 impl MonitorSocket {
     fn new(monitor: udev::MonitorSocket) -> io::Result<MonitorSocket> {
-        use libc::{fcntl, F_GETFD, FD_CLOEXEC, F_SETFD, F_GETFL, F_SETFL, O_NONBLOCK};
         use crate::util::cvt;
+        use libc::{
+            fcntl, FD_CLOEXEC, F_GETFD, F_GETFL, F_SETFD, F_SETFL, O_NONBLOCK,
+        };
 
         let fd = monitor.as_raw_fd();
 
         // Make sure the udev file descriptor is marked as CLOEXEC.
         let r = unsafe { cvt(fcntl(fd, F_GETFD))? };
 
-        if !((r & FD_CLOEXEC) == FD_CLOEXEC) {
+        if (r & FD_CLOEXEC) != FD_CLOEXEC {
             unsafe { cvt(fcntl(fd, F_SETFD, r | FD_CLOEXEC))? };
         }
 
@@ -116,7 +129,7 @@ impl MonitorSocket {
         // so make sure this is set
         let r = unsafe { cvt(fcntl(fd, F_GETFL))? };
 
-        if !((r & O_NONBLOCK) == O_NONBLOCK) {
+        if (r & O_NONBLOCK) != O_NONBLOCK {
             unsafe { cvt(fcntl(fd, F_SETFL, r | O_NONBLOCK))? };
         }
 
@@ -130,15 +143,23 @@ impl MonitorSocket {
 }
 
 impl Evented for MonitorSocket {
-    fn register(&self, poll: &Poll, token: Token, interest: Ready, opts: PollOpt)
-        -> io::Result<()>
-    {
+    fn register(
+        &self,
+        poll: &Poll,
+        token: Token,
+        interest: Ready,
+        opts: PollOpt,
+    ) -> io::Result<()> {
         EventedFd(&self.fd()).register(poll, token, interest, opts)
     }
 
-    fn reregister(&self, poll: &Poll, token: Token, interest: Ready, opts: PollOpt)
-        -> io::Result<()>
-    {
+    fn reregister(
+        &self,
+        poll: &Poll,
+        token: Token,
+        interest: Ready,
+        opts: PollOpt,
+    ) -> io::Result<()> {
         EventedFd(&self.fd()).reregister(poll, token, interest, opts)
     }
 
