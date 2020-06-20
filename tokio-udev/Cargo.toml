@@ -3,7 +3,9 @@ name = "tokio-udev"
 version = "0.2.0"
 authors = ["Jean Pierre Dudey <jeandudey@hotmail.com>"]
 license = "Apache-2.0/MIT"
-description = "Tokio support for udev device events."
+description = """
+Non-blocking/Asynchronous Tokio support for udev device events.
+"""
 repository = "https://github.com/jeandudey/tokio-udev"
 homepage = "https://github.com/jeandudey/tokio-udev"
 documentation = "https://docs.rs/tokio-udev"
