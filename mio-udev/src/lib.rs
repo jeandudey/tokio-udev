@@ -121,7 +121,7 @@ impl MonitorSocket {
         // Make sure the udev file descriptor is marked as CLOEXEC.
         let r = unsafe { cvt(fcntl(fd, F_GETFD))? };
 
-        if !((r & FD_CLOEXEC) == FD_CLOEXEC) {
+        if (r & FD_CLOEXEC) != FD_CLOEXEC {
             unsafe { cvt(fcntl(fd, F_SETFD, r | FD_CLOEXEC))? };
         }
 
@@ -129,7 +129,7 @@ impl MonitorSocket {
         // so make sure this is set
         let r = unsafe { cvt(fcntl(fd, F_GETFL))? };
 
-        if !((r & O_NONBLOCK) == O_NONBLOCK) {
+        if (r & O_NONBLOCK) != O_NONBLOCK {
             unsafe { cvt(fcntl(fd, F_SETFL, r | O_NONBLOCK))? };
         }
 
