@@ -10,17 +10,16 @@
 
 use futures_util::future::ready;
 use futures_util::stream::StreamExt;
-use tokio_udev::{Context, MonitorBuilder};
+use tokio_udev::MonitorBuilder;
 
 #[tokio::main]
 async fn main() {
-    let context = Context::new().unwrap();
-    let mut builder = MonitorBuilder::new(&context).unwrap();
-    builder
+    let builder = MonitorBuilder::new()
+        .expect("Couldn't create builder")
         .match_subsystem_devtype("usb", "usb_device")
-        .unwrap();
+        .expect("Failed to add filter for USB devices");
 
-    let monitor = builder.listen().unwrap();
+    let monitor = builder.listen().expect("Couldn't create MonitorSocket");
     monitor
         .for_each(|event| {
             println!(
