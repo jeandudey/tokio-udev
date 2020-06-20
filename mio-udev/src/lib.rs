@@ -31,8 +31,8 @@
 #![cfg(target_os = "linux")]
 
 pub use udev::{
-    Attribute, Attributes, Context, Device, Enumerator, Error as UdevError,
-    Event, EventType, Properties, Property,
+    Attribute, Attributes, Device, Enumerator, Event, EventType, Properties,
+    Property,
 };
 
 mod util;
@@ -58,58 +58,63 @@ pub struct MonitorBuilder {
 impl MonitorBuilder {
     /// Creates a new `MonitorSocket`.
     #[inline(always)]
-    pub fn new(context: &Context) -> io::Result<Self> {
+    pub fn new() -> io::Result<Self> {
         Ok(MonitorBuilder {
-            builder: udev::MonitorBuilder::new(context)?,
+            builder: udev::MonitorBuilder::new()?,
         })
+    }
+
+    #[inline(always)]
+    fn map(builder: udev::MonitorBuilder) -> Self {
+        MonitorBuilder { builder }
     }
 
     /// Adds a filter that matches events for devices with the given subsystem.
     #[inline(always)]
-    pub fn match_subsystem<T>(&mut self, subsystem: T) -> io::Result<()>
+    pub fn match_subsystem<T>(self, subsystem: T) -> io::Result<Self>
     where
         T: AsRef<OsStr>,
     {
-        Ok(self.builder.match_subsystem::<T>(subsystem)?)
+        self.builder.match_subsystem::<T>(subsystem).map(Self::map)
     }
 
     /// Adds a filter that matches events for devices with the given subsystem
     /// and device type.
     #[inline(always)]
     pub fn match_subsystem_devtype<T, U>(
-        &mut self,
+        self,
         subsystem: T,
         devtype: U,
-    ) -> io::Result<()>
+    ) -> io::Result<Self>
     where
         T: AsRef<OsStr>,
         U: AsRef<OsStr>,
     {
-        Ok(self
-            .builder
-            .match_subsystem_devtype::<T, U>(subsystem, devtype)?)
+        self.builder
+            .match_subsystem_devtype::<T, U>(subsystem, devtype)
+            .map(Self::map)
     }
 
     /// Adds a filter that matches events for devices with the given tag.
     #[inline(always)]
-    pub fn match_tag<T>(&mut self, tag: T) -> io::Result<()>
+    pub fn match_tag<T>(self, tag: T) -> io::Result<Self>
     where
         T: AsRef<OsStr>,
     {
-        Ok(self.builder.match_tag::<T>(tag)?)
+        self.builder.match_tag::<T>(tag).map(Self::map)
     }
 
     /// Removes all filters currently set on the monitor.
     #[inline(always)]
-    pub fn clear_filters(&mut self) -> io::Result<()> {
-        Ok(self.builder.clear_filters()?)
+    pub fn clear_filters(self) -> io::Result<Self> {
+        self.builder.clear_filters().map(Self::map)
     }
 
     /// Listens for events matching the current filters.
     ///
     /// This method consumes the `MonitorBuilder`.
     pub fn listen(self) -> io::Result<MonitorSocket> {
-        Ok(MonitorSocket::new(self.builder.listen()?)?)
+        MonitorSocket::new(self.builder.listen()?)
     }
 }
 

@@ -1,4 +1,4 @@
-# Unreleased
+# 0.3.0
 
 - .github: Add Rust actions ([#5](https://github.com/jeandudey/tokio-udev/pull/5))
 - {mio,tokio}-udev: format code with rustfmt ([#4](https://github.com/jeandudey/tokio-udev/pull/4))
@@ -9,6 +9,7 @@
   - {mio,tokio}-udev: update crate descriptions
   - {mio,tokio}-udev: apply copyright
   - Add LICENSE-MIT and LICENSE-APACHE
+- mio-udev: update udev to 0.4 [#8](https://github.com/jeandudey/tokio-udev/pull/8)
 
 # 0.2.0
 
