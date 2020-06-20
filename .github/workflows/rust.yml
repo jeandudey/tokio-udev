@@ -30,33 +30,6 @@ jobs:
         continue-on-error: false
         with:
           command: check
-
-  test:
-    name: Test Suite
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        rust:
-          - stable
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v2
-
-      - name: Install toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: ${{ matrix.rust }}
-          override: true
-
-      - name: Install libudev-dev
-        run: sudo apt-get install libudev-dev
-
-      - name: Run cargo test
-        uses: actions-rs/cargo@v1
-        continue-on-error: false
-        with:
-          command: test
-
   fmt:
     name: Rustfmt
     runs-on: ubuntu-latest
