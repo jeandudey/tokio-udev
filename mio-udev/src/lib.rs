@@ -43,7 +43,7 @@ use std::os::unix::io::{AsRawFd, RawFd};
 
 use mio::event::Source;
 use mio::unix::SourceFd;
-use mio::{Interest, Poll, Registry, Token};
+use mio::{Interest, Registry, Token};
 
 /// Monitors for device events.
 ///

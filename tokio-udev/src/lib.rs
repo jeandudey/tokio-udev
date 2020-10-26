@@ -43,7 +43,6 @@ use std::sync::Mutex;
 use std::task::Poll;
 
 use futures_core::stream::Stream;
-use tokio::io::PollEvented;
 
 /// Monitors for device events.
 ///
@@ -138,9 +137,9 @@ impl Stream for MonitorSocket {
 
     fn poll_next(
         self: Pin<&mut Self>,
-        cx: &mut std::task::Context,
+        _: &mut std::task::Context,
     ) -> Poll<Option<Self::Item>> {
-        self.inner.lock().unwrap().poll_receive(cx)
+        self.inner.lock().unwrap().poll_receive()
     }
 }
 
@@ -151,20 +150,17 @@ struct Inner {
 
 impl Inner {
     fn new(mut monitor: mio_udev::MonitorSocket) -> io::Result<Inner> {
-        let mut poll = MioPoll::new()?;
+        let poll = MioPoll::new()?;
         poll.registry()
             .register(&mut monitor, Token(0), Interest::READABLE)?;
         Ok(Inner { poll, monitor })
     }
 
-    fn poll_receive(
-        &mut self,
-        cx: &mut std::task::Context,
-    ) -> Poll<Option<mio_udev::Event>> {
+    fn poll_receive(&mut self) -> Poll<Option<mio_udev::Event>> {
         let mut events = Events::with_capacity(1);
         self.poll.poll(&mut events, None).unwrap();
         let mut events = events.into_iter();
-        let poll_result = match events.next() {
+        match events.next() {
             Some(event) => {
                 if event.is_error() {
                     Poll::Ready(None)
@@ -175,7 +171,6 @@ impl Inner {
                 }
             }
             None => Poll::Pending,
-        };
-        poll_result
+        }
     }
 }
