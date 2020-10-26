@@ -13,5 +13,5 @@ edition = "2018"
 
 [dependencies]
 udev = "0.5"
-mio = "0.6"
+mio = { version = "0.7", features = ["os-util"] }
 libc = "0.2"
