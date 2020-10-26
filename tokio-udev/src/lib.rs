@@ -35,6 +35,7 @@ pub use mio_udev::{
     Property,
 };
 
+use mio::{Events, Interest, Poll as MioPoll, Token};
 use std::ffi::OsStr;
 use std::io;
 use std::pin::Pin;
@@ -144,34 +145,37 @@ impl Stream for MonitorSocket {
 }
 
 struct Inner {
-    io: PollEvented<mio_udev::MonitorSocket>,
+    poll: MioPoll,
+    monitor: mio_udev::MonitorSocket,
 }
 
 impl Inner {
-    fn new(monitor: mio_udev::MonitorSocket) -> io::Result<Inner> {
-        Ok(Inner {
-            io: PollEvented::new(monitor)?,
-        })
+    fn new(mut monitor: mio_udev::MonitorSocket) -> io::Result<Inner> {
+        let mut poll = MioPoll::new()?;
+        poll.registry()
+            .register(&mut monitor, Token(0), Interest::READABLE)?;
+        Ok(Inner { poll, monitor })
     }
 
     fn poll_receive(
         &mut self,
         cx: &mut std::task::Context,
     ) -> Poll<Option<mio_udev::Event>> {
-        if let Poll::Pending =
-            self.io.poll_read_ready(cx, mio::Ready::readable())
-        {
-            return Poll::Pending;
-        }
-
-        match self.io.get_mut().next() {
-            Some(event) => Poll::Ready(Some(event)),
-            None => {
-                self.io
-                    .clear_read_ready(cx, mio::Ready::readable())
-                    .unwrap();
-                Poll::Pending
+        let mut events = Events::with_capacity(1);
+        self.poll.poll(&mut events, None).unwrap();
+        let mut events = events.into_iter();
+        let poll_result = match events.next() {
+            Some(event) => {
+                if event.is_error() {
+                    Poll::Ready(None)
+                } else if !event.is_readable() {
+                    Poll::Pending
+                } else {
+                    Poll::Ready(self.monitor.next())
+                }
             }
-        }
+            None => Poll::Pending,
+        };
+        poll_result
     }
 }
