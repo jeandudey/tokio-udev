@@ -16,8 +16,8 @@ mio = { version = "0.7", features = ["os-poll"] }
 mio-udev = { path = "../mio-udev", version = "0.3.0" }
 
 futures-core = "0.3"
-tokio = { version = "0.2", features = ["io-driver"] }
+tokio = { version = ">=0.3.2", features = ["net"] } 
 
 [dev-dependencies]
 futures-util = "0.3"
-tokio = { version = "0.2", features = ["macros"] }
+tokio = { version = "0.3", features = ["macros"] }
