@@ -157,6 +157,12 @@ impl MonitorSocket {
     }
 }
 
+impl AsRawFd for MonitorSocket {
+    fn as_raw_fd(&self) -> RawFd {
+        self.fd()
+    }
+}
+
 impl Source for MonitorSocket {
     fn register(
         &mut self,

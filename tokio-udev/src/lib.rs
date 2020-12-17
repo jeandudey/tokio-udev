@@ -35,14 +35,15 @@ pub use mio_udev::{
     Property,
 };
 
+use futures_core::stream::Stream;
 use mio::{Events, Interest, Poll as MioPoll, Token};
 use std::ffi::OsStr;
 use std::io;
+use std::os::unix::io::AsRawFd;
 use std::pin::Pin;
 use std::sync::Mutex;
 use std::task::Poll;
-
-use futures_core::stream::Stream;
+use tokio::io::unix::AsyncFd;
 
 /// Monitors for device events.
 ///
@@ -137,40 +138,34 @@ impl Stream for MonitorSocket {
 
     fn poll_next(
         self: Pin<&mut Self>,
-        _: &mut std::task::Context,
+        ctx: &mut std::task::Context,
     ) -> Poll<Option<Self::Item>> {
-        self.inner.lock().unwrap().poll_receive()
+        self.inner.lock().unwrap().poll_receive(ctx)
     }
 }
 
 struct Inner {
-    poll: MioPoll,
-    monitor: mio_udev::MonitorSocket,
+    fd: AsyncFd<mio_udev::MonitorSocket>,
 }
 
 impl Inner {
     fn new(mut monitor: mio_udev::MonitorSocket) -> io::Result<Inner> {
-        let poll = MioPoll::new()?;
-        poll.registry()
-            .register(&mut monitor, Token(0), Interest::READABLE)?;
-        Ok(Inner { poll, monitor })
+        Ok(Inner {
+            fd: AsyncFd::new(monitor)?,
+        })
     }
 
-    fn poll_receive(&mut self) -> Poll<Option<mio_udev::Event>> {
-        let mut events = Events::with_capacity(1);
-        self.poll.poll(&mut events, None).unwrap();
-        let mut events = events.into_iter();
-        match events.next() {
-            Some(event) => {
-                if event.is_error() {
-                    Poll::Ready(None)
-                } else if !event.is_readable() {
-                    Poll::Pending
-                } else {
-                    Poll::Ready(self.monitor.next())
-                }
+    fn poll_receive(
+        &mut self,
+        ctx: &mut std::task::Context,
+    ) -> Poll<Option<mio_udev::Event>> {
+        match self.fd.poll_read_ready(ctx) {
+            Poll::Ready(Ok(mut ready_guard)) => {
+                ready_guard.clear_ready();
+                Poll::Ready(self.fd.get_mut().next())
             }
-            None => Poll::Pending,
+            Poll::Ready(Err(e)) => Poll::Ready(None),
+            Poll::Pending => Poll::Pending,
         }
     }
 }
