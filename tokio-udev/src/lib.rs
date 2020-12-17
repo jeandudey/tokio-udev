@@ -36,10 +36,8 @@ pub use mio_udev::{
 };
 
 use futures_core::stream::Stream;
-use mio::{Events, Interest, Poll as MioPoll, Token};
 use std::ffi::OsStr;
 use std::io;
-use std::os::unix::io::AsRawFd;
 use std::pin::Pin;
 use std::sync::Mutex;
 use std::task::Poll;
@@ -149,7 +147,7 @@ struct Inner {
 }
 
 impl Inner {
-    fn new(mut monitor: mio_udev::MonitorSocket) -> io::Result<Inner> {
+    fn new(monitor: mio_udev::MonitorSocket) -> io::Result<Inner> {
         Ok(Inner {
             fd: AsyncFd::new(monitor)?,
         })
@@ -164,7 +162,7 @@ impl Inner {
                 ready_guard.clear_ready();
                 Poll::Ready(self.fd.get_mut().next())
             }
-            Poll::Ready(Err(e)) => Poll::Ready(None),
+            Poll::Ready(Err(_)) => Poll::Ready(None),
             Poll::Pending => Poll::Pending,
         }
     }
