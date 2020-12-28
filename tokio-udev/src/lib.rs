@@ -132,7 +132,7 @@ unsafe impl Send for MonitorSocket {}
 unsafe impl Sync for MonitorSocket {}
 
 impl Stream for MonitorSocket {
-    type Item = mio_udev::Event;
+    type Item = Result<mio_udev::Event, io::Error>;
 
     fn poll_next(
         self: Pin<&mut Self>,
@@ -156,13 +156,13 @@ impl Inner {
     fn poll_receive(
         &mut self,
         ctx: &mut std::task::Context,
-    ) -> Poll<Option<mio_udev::Event>> {
+    ) -> Poll<Option<Result<mio_udev::Event, io::Error>>> {
         match self.fd.poll_read_ready(ctx) {
             Poll::Ready(Ok(mut ready_guard)) => {
                 ready_guard.clear_ready();
-                Poll::Ready(self.fd.get_mut().next())
+                Poll::Ready(self.fd.get_mut().next().map(Ok))
             }
-            Poll::Ready(Err(_)) => Poll::Ready(None),
+            Poll::Ready(Err(err)) => Poll::Ready(Some(Err(err))),
             Poll::Pending => Poll::Pending,
         }
     }
