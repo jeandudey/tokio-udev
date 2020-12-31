@@ -1,6 +1,6 @@
 [package]
 name = "mio-udev"
-version = "0.4.0"
+version = "0.5.0"
 authors = ["Jean Pierre Dudey <jeandudey@hotmail.com>"]
 license = "Apache-2.0/MIT"
 description = """
@@ -12,6 +12,6 @@ documentation = "https://docs.rs/mio-udev"
 edition = "2018"
 
 [dependencies]
-udev = "0.4"
+udev = "0.5"
 mio = { version = "0.7", features = ["os-util"] }
 libc = "0.2"
