@@ -1,3 +1,7 @@
+# 0.6.0
+
+- tokio-udev: use tokio `0.1`.
+
 # 0.5.0
 
 - mio-udev,tokio-udev: update udev to 0.5 [#12](https://github.com/jeandudey/tokio-udev/pull/12).
