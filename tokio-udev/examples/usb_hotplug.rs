@@ -22,11 +22,13 @@ async fn main() {
     let monitor = builder.listen().expect("Couldn't create MonitorSocket");
     monitor
         .for_each(|event| {
-            println!(
-                "Hotplug event: {}: {}",
-                event.event_type(),
-                event.device().syspath().display()
-            );
+            if let Ok(event) = event {
+                println!(
+                    "Hotplug event: {}: {}",
+                    event.event_type(),
+                    event.device().syspath().display()
+                );
+            }
             ready(())
         })
         .await

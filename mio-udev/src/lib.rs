@@ -41,9 +41,9 @@ use std::ffi::OsStr;
 use std::io;
 use std::os::unix::io::{AsRawFd, RawFd};
 
-use mio::event::Evented;
-use mio::unix::EventedFd;
-use mio::{Poll, PollOpt, Ready, Token};
+use mio::event::Source;
+use mio::unix::SourceFd;
+use mio::{Interest, Registry, Token};
 
 /// Monitors for device events.
 ///
@@ -157,29 +157,33 @@ impl MonitorSocket {
     }
 }
 
-impl Evented for MonitorSocket {
+impl AsRawFd for MonitorSocket {
+    fn as_raw_fd(&self) -> RawFd {
+        self.fd()
+    }
+}
+
+impl Source for MonitorSocket {
     fn register(
-        &self,
-        poll: &Poll,
+        &mut self,
+        registry: &Registry,
         token: Token,
-        interest: Ready,
-        opts: PollOpt,
+        interest: Interest,
     ) -> io::Result<()> {
-        EventedFd(&self.fd()).register(poll, token, interest, opts)
+        SourceFd(&self.fd()).register(registry, token, interest)
     }
 
     fn reregister(
-        &self,
-        poll: &Poll,
+        &mut self,
+        registry: &Registry,
         token: Token,
-        interest: Ready,
-        opts: PollOpt,
+        interest: Interest,
     ) -> io::Result<()> {
-        EventedFd(&self.fd()).reregister(poll, token, interest, opts)
+        SourceFd(&self.fd()).reregister(registry, token, interest)
     }
 
-    fn deregister(&self, poll: &Poll) -> io::Result<()> {
-        EventedFd(&self.fd()).deregister(poll)
+    fn deregister(&mut self, registry: &Registry) -> io::Result<()> {
+        SourceFd(&self.fd()).deregister(registry)
     }
 }
 

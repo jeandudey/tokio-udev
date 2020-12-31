@@ -12,6 +12,6 @@ documentation = "https://docs.rs/mio-udev"
 edition = "2018"
 
 [dependencies]
-udev = "0.5"
-mio = "0.6"
+udev = "0.4"
+mio = { version = "0.7", features = ["os-util"] }
 libc = "0.2"
