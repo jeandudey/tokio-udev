@@ -1,3 +1,10 @@
+# 0.4.0
+
+- tokio-udev: Update tokio to `>=0.3.2` [#9](https://github.com/jeandudey/tokio-udev/pull/9).
+- tokio-udev: Update mio to `0.7` [#9](https://github.com/jeandudey/tokio-udev/pull/9).
+- tokio-udev: Update mio-udev to `0.4` [#11](https://github.com/jeandudey/tokio-udev/pull/11).
+- mio-udev: Update mio to `0.7`.
+
 # 0.3.0
 
 - .github: Add Rust actions ([#5](https://github.com/jeandudey/tokio-udev/pull/5))

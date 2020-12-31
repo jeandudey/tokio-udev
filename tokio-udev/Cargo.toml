@@ -1,6 +1,6 @@
 [package]
 name = "tokio-udev"
-version = "0.3.0"
+version = "0.4.0"
 authors = ["Jean Pierre Dudey <jeandudey@hotmail.com>"]
 license = "Apache-2.0/MIT"
 description = """
@@ -13,10 +13,10 @@ edition = "2018"
 
 [dependencies]
 mio = { version = "0.7", features = ["os-poll"] }
-mio-udev = { path = "../mio-udev", version = "0.3.0" }
+mio-udev = { path = "../mio-udev", version = "0.4.0" }
 
 futures-core = "0.3"
-tokio = { version = ">=0.3.2", features = ["net"] } 
+tokio = { version = ">=0.3.2", features = ["net"] }
 
 [dev-dependencies]
 futures-util = "0.3"
