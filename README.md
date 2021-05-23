@@ -2,8 +2,6 @@
 
 > Non-blocking/asynchronous mio & tokio support for udev device events
 
-This project is developed by [jeandudey](https://github.com/jeandudey/)
-
 # [Documentation](https://docs.rs/tokio-udev)
 
 # Minimum Supported Rust Version

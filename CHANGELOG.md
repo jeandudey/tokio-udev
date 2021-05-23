@@ -1,3 +1,12 @@
+# 0.7.0
+
+- tokio-udev: remove dependency to `mio-udev` and use the provided
+mio implementation of the `udev` crate.
+- tokio-udev: fix Send/Sync soundness (see #13). As a result, the Send/Sync implementations
+are removed to avoid double-free/undefined behaviour.
+- tokio-udev: rename `MonitorSocket` to `AsyncMonitorSocket` to keep the existing type from
+udev.
+
 # 0.6.0
 
 - tokio-udev: use tokio `0.1`.

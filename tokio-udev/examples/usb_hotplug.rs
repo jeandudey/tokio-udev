@@ -8,9 +8,10 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+use std::convert::TryInto;
 use futures_util::future::ready;
 use futures_util::stream::StreamExt;
-use tokio_udev::MonitorBuilder;
+use tokio_udev::{MonitorBuilder, AsyncMonitorSocket};
 
 #[tokio::main]
 async fn main() {
@@ -19,7 +20,11 @@ async fn main() {
         .match_subsystem_devtype("usb", "usb_device")
         .expect("Failed to add filter for USB devices");
 
-    let monitor = builder.listen().expect("Couldn't create MonitorSocket");
+    let monitor: AsyncMonitorSocket = builder
+        .listen()
+        .expect("Couldn't create MonitorSocket")
+        .try_into()
+        .expect("Couldn't create AsyncMonitorSocket");
     monitor
         .for_each(|event| {
             if let Ok(event) = event {
