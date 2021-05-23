@@ -30,10 +30,13 @@
 
 #![cfg(target_os = "linux")]
 
-pub use udev::{Attributes, Device, Enumerator, Event, EventType, Properties, MonitorSocket, MonitorBuilder};
+pub use udev::{
+    Attributes, Device, Enumerator, Event, EventType, MonitorBuilder,
+    MonitorSocket, Properties,
+};
 
 use futures_core::stream::Stream;
-use std::{io, pin::Pin, sync::Mutex, task::Poll, convert::TryFrom};
+use std::{convert::TryFrom, io, pin::Pin, sync::Mutex, task::Poll};
 use tokio::io::unix::AsyncFd;
 
 /// Asynchronous stream of device events.
@@ -53,7 +56,9 @@ impl AsyncMonitorSocket {
 impl TryFrom<MonitorSocket> for AsyncMonitorSocket {
     type Error = io::Error;
 
-    fn try_from(monitor: MonitorSocket) -> Result<AsyncMonitorSocket, Self::Error>  {
+    fn try_from(
+        monitor: MonitorSocket,
+    ) -> Result<AsyncMonitorSocket, Self::Error> {
         AsyncMonitorSocket::new(monitor)
     }
 }

@@ -8,10 +8,10 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use std::convert::TryInto;
 use futures_util::future::ready;
 use futures_util::stream::StreamExt;
-use tokio_udev::{MonitorBuilder, AsyncMonitorSocket};
+use std::convert::TryInto;
+use tokio_udev::{AsyncMonitorSocket, MonitorBuilder};
 
 #[tokio::main]
 async fn main() {
