@@ -12,10 +12,9 @@ documentation = "https://docs.rs/tokio-udev"
 edition = "2018"
 
 [dependencies]
-mio = { version = "0.7", features = ["os-poll"] }
 futures-core = "0.3"
 tokio = { version = "1", features = ["net"] }
-udev = { version = "0.6", features = ["mio"] }
+udev = { version = "0.6" }
 
 [dev-dependencies]
 futures-util = "0.3"
