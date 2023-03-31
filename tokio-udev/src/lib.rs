@@ -90,7 +90,7 @@ impl Inner {
         ctx: &mut std::task::Context,
     ) -> Poll<Option<Result<udev::Event, io::Error>>> {
         loop {
-            if let Some(e) = self.fd.get_mut().next() {
+            if let Some(e) = self.fd.get_mut().iter().next() {
                 return Poll::Ready(Some(Ok(e)));
             }
             match self.fd.poll_read_ready(ctx) {
