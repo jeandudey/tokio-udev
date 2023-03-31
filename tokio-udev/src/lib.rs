@@ -89,13 +89,17 @@ impl Inner {
         &mut self,
         ctx: &mut std::task::Context,
     ) -> Poll<Option<Result<udev::Event, io::Error>>> {
-        match self.fd.poll_read_ready(ctx) {
-            Poll::Ready(Ok(mut ready_guard)) => {
-                ready_guard.clear_ready();
-                Poll::Ready(self.fd.get_mut().next().map(Ok))
+        loop {
+            if let Some(e) = self.fd.get_mut().next() {
+                return Poll::Ready(Some(Ok(e)));
             }
-            Poll::Ready(Err(err)) => Poll::Ready(Some(Err(err))),
-            Poll::Pending => Poll::Pending,
+            match self.fd.poll_read_ready(ctx) {
+                Poll::Ready(Ok(mut ready_guard)) => {
+                    ready_guard.clear_ready();
+                }
+                Poll::Ready(Err(err)) => return Poll::Ready(Some(Err(err))),
+                Poll::Pending => return Poll::Pending,
+            }
         }
     }
 }
