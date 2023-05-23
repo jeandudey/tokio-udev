@@ -1,3 +1,7 @@
+# [unreleased]
+
+- tokio-udev: update udev to 0.7.
+
 # 0.7.0
 
 - tokio-udev: remove dependency to `mio-udev` and use the provided
