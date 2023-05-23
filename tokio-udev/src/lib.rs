@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: © 2020 Jean-Pierre De Jesus DIAZ <me@jeandudey.tech>
+// SPDX-FileCopyrightText: © 2023 Sjoerd Simons <sjoerd@collabora.com>
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 //! # tokio-udev
