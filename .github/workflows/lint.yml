@@ -1,0 +1,50 @@
+# SPDX-FileCopyrightText: © 2023 Foundation Devices, Inc. <hello@foundationdevices.com>
+# SPDX-FileCopyrightText: © 2023 Jean-Pierre De Jesus DIAZ <me@jeandudey.tech>
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+name: Lint
+on: [push]
+jobs:
+  is-reuse-compliant:
+    name: Is REUSE compliant?
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: fsfe/reuse-action@v1
+
+  is-the-code-compilable:
+    name: Is the code compilable?
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.44
+      - run: cargo check
+      - run: cargo check --no-default-features
+      - run: cargo check --all-features
+
+  is-the-code-formatted:
+    name: Is the code formatted?
+    needs: [ is-the-code-compilable ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.44
+          components: rustfmt
+      - run: cargo fmt --all -- --check
+
+  tests-pass:
+    name: Tests pass?
+    needs: [ is-the-code-compilable ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.44
+      - run: cargo test
+      - run: cargo test --no-default-features
+      - run: cargo test --all-features
