@@ -11,7 +11,7 @@ SPDX-License-Identifier: MIT OR Apache-2.0
 
 # Minimum Supported Rust Version
 
-The crates are guaranteed to compile on stable Rust 1.44.1. It _might_ compile
+The crates are guaranteed to compile on stable Rust 1.56. It _might_ compile
 with older versions but that may change in any new patch release.
 
 # License
