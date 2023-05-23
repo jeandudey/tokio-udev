@@ -15,12 +15,6 @@
 //! [dependencies]
 //! tokio-udev = "0.1"
 //! ```
-//!
-//! Then import it in your crate root as:
-//!
-//! ```rust
-//! use tokio_udev;
-//! ```
 
 #![cfg(target_os = "linux")]
 
