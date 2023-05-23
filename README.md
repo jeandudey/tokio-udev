@@ -1,3 +1,8 @@
+<!--
+SPDX-FileCopyrightText: © 2020 Jean-Pierre De Jesus DIAZ <me@jeandudey.tech>
+SPDX-License-Identifier: MIT OR Apache-2.0
+-->
+
 # `tokio-udev`
 
 > Non-blocking/asynchronous mio & tokio support for udev device events

@@ -1,6 +1,12 @@
+<!--
+SPDX-FileCopyrightText: © 2020 Jean-Pierre De Jesus DIAZ <me@jeandudey.tech>
+SPDX-License-Identifier: MIT OR Apache-2.0
+-->
+
 # [unreleased]
 
 - tokio-udev: update udev to 0.7.
+- tree-wide: use REUSE to identify copyright in each file.
 
 # 0.7.0
 

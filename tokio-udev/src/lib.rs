@@ -1,12 +1,5 @@
-// Copyright 2020 Jean Pierre Dudey. See the LICENSE-MIT and
-// LICENSE-APACHE files at the top-level directory of this
-// distribution.
-//
-// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
-// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
-// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
-// option. This file may not be copied, modified, or distributed
-// except according to those terms.
+// SPDX-FileCopyrightText: © 2020 Jean-Pierre De Jesus DIAZ <me@jeandudey.tech>
+// SPDX-License-Identifier: MIT OR Apache-2.0
 
 //! # tokio-udev
 //!
@@ -75,11 +68,11 @@ impl Stream for AsyncMonitorSocket {
 }
 
 struct Inner {
-    fd: AsyncFd<udev::MonitorSocket>,
+    fd: AsyncFd<MonitorSocket>,
 }
 
 impl Inner {
-    fn new(monitor: udev::MonitorSocket) -> io::Result<Inner> {
+    fn new(monitor: MonitorSocket) -> io::Result<Inner> {
         Ok(Inner {
             fd: AsyncFd::new(monitor)?,
         })
@@ -88,7 +81,7 @@ impl Inner {
     fn poll_receive(
         &mut self,
         ctx: &mut std::task::Context,
-    ) -> Poll<Option<Result<udev::Event, io::Error>>> {
+    ) -> Poll<Option<Result<Event, io::Error>>> {
         loop {
             if let Some(e) = self.fd.get_mut().iter().next() {
                 return Poll::Ready(Some(Ok(e)));

@@ -1,0 +1,4 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: tokio-udev
+Upstream-Contact: Jean-Pierre De Jesus DIAZ <me@jeandudey.tech>
+Source: https://github.com/jeandudey/tokio-udev

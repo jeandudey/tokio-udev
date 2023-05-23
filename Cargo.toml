@@ -1,2 +1,5 @@
+# SPDX-FileCopyrightText: © 2020 Jean-Pierre De Jesus DIAZ <me@jeandudey.tech>
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 [workspace]
 members = ["mio-udev", "tokio-udev"]
