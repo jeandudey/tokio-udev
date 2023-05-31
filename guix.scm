@@ -78,10 +78,10 @@
     (description "libudev bindings for Rust")
     (license license:expat)))
 
-(define-public rust-tokio-udev-0.8
+(define-public rust-tokio-udev-0.9.0
   (package
     (name "tokio-udev")
-    (version "0.8")
+    (version "0.9.0")
     (source (local-file "tokio-udev"
                         "rust-tokio-udev"
                         #:recursive? #t
