@@ -13,6 +13,7 @@ repository = "https://github.com/jeandudey/tokio-udev"
 homepage = "https://github.com/jeandudey/tokio-udev"
 documentation = "https://docs.rs/tokio-udev"
 edition = "2018"
+readme = "../README.md"
 
 [dependencies]
 futures-core = "0.3"
