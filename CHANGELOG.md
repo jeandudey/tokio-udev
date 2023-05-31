@@ -5,6 +5,10 @@ SPDX-License-Identifier: MIT OR Apache-2.0
 
 # [unreleased]
 
+# 0.9.1
+
+- tokio-udev: update doc comment with new version.
+
 # 0.9.0
 
 - tokio-udev: update udev to 0.7.

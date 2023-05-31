@@ -13,7 +13,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! tokio-udev = "0.1"
+//! tokio-udev = "0.9"
 //! ```
 
 #![cfg(target_os = "linux")]
