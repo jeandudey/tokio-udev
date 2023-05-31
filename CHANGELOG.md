@@ -9,6 +9,11 @@ SPDX-License-Identifier: MIT OR Apache-2.0
 - tokio-udev: set MSRV as 1.56.
 - tree-wide: use REUSE to identify copyright in each file.
 
+# 0.8.0
+
+- tokio-udev: by mistake the version released contains the same code as 0.7.0, no version
+was tagged.
+
 # 0.7.0
 
 - tokio-udev: remove dependency to `mio-udev` and use the provided
