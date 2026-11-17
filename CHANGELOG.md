@@ -5,6 +5,8 @@ SPDX-License-Identifier: MIT OR Apache-2.0
 
 # [unreleased]
 
+- tokio-udev: set MSRV as 1.85.
+
 # 0.9.1
 
 - tokio-udev: update doc comment with new version.
