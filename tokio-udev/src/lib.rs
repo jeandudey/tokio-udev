@@ -25,7 +25,7 @@ pub use udev::{
 
 use futures_core::stream::Stream;
 use std::{convert::TryFrom, io, pin::Pin, sync::Mutex, task::Poll};
-use tokio::io::unix::AsyncFd;
+use tokio::io::{unix::AsyncFd, Interest};
 
 /// Asynchronous stream of device events.
 pub struct AsyncMonitorSocket {
@@ -68,8 +68,13 @@ struct Inner {
 
 impl Inner {
     fn new(monitor: MonitorSocket) -> io::Result<Inner> {
+        // SAFETY: `MonitorSocket` owns the udev monitor fd, keeps it open for its
+        // whole lifetime, and always returns the same fd from `as_raw_fd`.
+        let maybe_fd = unsafe {
+            AsyncFd::register_with_interest(monitor, Interest::READABLE)
+        };
         Ok(Inner {
-            fd: AsyncFd::new(monitor)?,
+            fd: maybe_fd.map_err(|err| err.into_parts().1)?,
         })
     }
 
