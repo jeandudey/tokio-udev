@@ -5,8 +5,15 @@ SPDX-License-Identifier: MIT OR Apache-2.0
 
 # [unreleased]
 
+# 0.10.1
+
 - tokio-udev: raise minimum tokio to 1.53.3 and register the monitor fd with `AsyncFd::register_with_interest`.
 - tokio-udev: set MSRV as 1.85.
+- tokio-udev: raise minimum futures-core to 0.3.31.
+
+# 0.10.0
+
+- tokio-udev: update udev to 0.9.
 
 # 0.9.1
 
